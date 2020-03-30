@@ -1,4 +1,4 @@
 data/CraterGeometry_9May2018.txt 
 __pycache__
 .ipynb_checkpoints
-.mat
+*.mat
