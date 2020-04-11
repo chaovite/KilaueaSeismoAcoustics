@@ -198,6 +198,27 @@ class Volume:
                self.index, str(index_surfaceloops).strip('[]'))
         return txt
 
+class PhysicalGroup:
+    """
+    create a physical group:
+    Physical line, surface, or volume
+    """
+    def __init__(self, objType, objList, tag):
+        assert objType in ['Line','Surface','Volume']
+        self.tag     = tag        
+        self.objType = objType
+        self.objList = objList
+    
+    def write_txt(self):
+        inds = [o.index for o in self.objList]
+        if type(self.tag) == str:
+            txt  = "Physical %s(%s) = {%s}; \n\n"%(self.objType, self.tag, 
+                                                   str(inds).strip('[]'))
+        else:
+            txt  = "Physical %s(%d) = {%s}; \n\n"%(self.objType, self.tag, 
+                                                   str(inds).strip('[]'))
+        return txt
+        
 class Field:
     """
     create a size field
@@ -916,8 +937,8 @@ def createSphereShellSizeFields(cs, rs, sizes, DistMax, DistMin, LcMax, LcMin):
     # option_min = {'FieldsList': [i.index for i in sizeFieldsThres]}
     # field_min  = Field('Min', option_min, setbackground=True)
 
-    objs +=  sizeFieldsEvals +  sizeFieldsThres
-    return objs, sizeFieldsThres
+    # objs +=  sizeFieldsEvals +  sizeFieldsThres
+    return sizeFieldsEvals, sizeFieldsThres
 
 def createEllipseShellSizeFields2D(cs, rs, axes, sizes, DistMax, DistMin, LcMax, LcMin, StopAtDistMax=1):
     """
