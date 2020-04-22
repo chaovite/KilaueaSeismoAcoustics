@@ -1,0 +1,79 @@
+&equations
+MaterialFileName = 'material.yaml'
+/
+
+&IniCondition
+cICType = 'SloshingLake'
+/
+
+&Boundaries
+BC_fs = 1
+BC_dr = 0
+BC_of = 1
+/
+
+&DynamicRupture
+OutputPointType = 0        ! Type (0: no output, 1: take GP's 2: 4 points per surface triangle, 3: output at certain pickpoints, 4: fault surface output, 5=4+3)
+/
+
+
+&Elementwise
+printIntervalCriterion = 2 ! 1=iteration, 2=time
+printtimeinterval_sec = 1.0 ! Time interval at which output will be written
+OutputMask = 1 1 1 1 1 1 1 1 1 1 1  
+refinement_strategy = 2
+refinement = 0
+/
+
+&Pickpoint
+/
+ 
+&SourceType
+/
+
+&SpongeLayer
+/
+            
+&MeshNml
+MeshFile = 'mesh/KilaueaCrater.h5'
+meshgenerator = 'PUML'       ! Name of meshgenerator (format)
+/
+
+&Discretization
+CFL = 0.5                       ! CFL number (<=1.0)
+FixTimeStep = 5                 ! Manualy chosen minimum time
+ClusteredLTS = 2
+
+/
+
+&Output
+OutputFile = 'output/output'
+iOutputMask = 1 1 1 1 1 1 1 1 1
+iOutputMaskMaterial = 1 1 1          ! Material output
+Format = 6                       ! Format (0=IDL, 1=TECPLOT, 2=IBM DX, 4=GiD, 6=hdf5, 10= no output))
+TimeInterval = 0.5                ! Index of printed info at time -  was 2
+printIntervalCriterion = 2
+xdmfWriterBackend = 'posix'
+
+! Off-fault receivers
+pickDtType = 1
+pickdt = 1 
+nRecordPoints = 0 ! TODO
+RFileName = 'receivers.dat'
+
+! Surface output
+SurfaceOutput = 1
+SurfaceOutputRefinement = 1
+SurfaceOutputInterval = 0.5
+
+/
+
+&AbortCriteria
+EndTime = 50.0
+/
+
+&Analysis
+/
+
+&Debugging
+/

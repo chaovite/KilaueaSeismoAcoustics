@@ -1,0 +1,16 @@
+!Any
+  components:
+    - !GroupFilter
+      groups: [88] # fluid
+      components: !ConstantMap
+        map:
+          rho: 1500.0
+          mu: 0.0
+          lambda: 6.0e+9
+    - !GroupFilter
+      groups: [99] # solid
+      components: !ConstantMap
+        map:
+          rho: 3000
+          mu: 2.7e10
+          lambda: 2.1e+10
