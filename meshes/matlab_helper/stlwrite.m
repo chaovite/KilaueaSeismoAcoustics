@@ -155,13 +155,16 @@ elseif isnumeric(varargin{1})
             elseif numel(varargin{1})==ZsizeXY(1) && numel(varargin{2})==ZsizeXY(2)
                 % Convert vector XY to meshgrid
                 [X,Y] = meshgrid(varargin{1}, varargin{2});
+            elseif numel(varargin{1}) == numel(varargin{2}) && numel(varargin{1})==numel(varargin{3})
+                X = varargin{1};
+                Y = varargin{2};
             else
                 error('stlwrite:badinput', 'Unable to resolve X and Y variables');
             end
             
             % Convert to faces/vertices
             if strcmp(options.triangulation,'delaunay')
-                faces = delaunay(X,Y);
+                faces = delaunay(X(:),Y(:));
                 vertices = [X(:) Y(:) Z(:)];
             else
                 if ~exist('mesh2tri','file')
