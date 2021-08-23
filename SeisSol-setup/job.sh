@@ -3,34 +3,34 @@
 
 #SBATCH -J kilauea
 #Output and error (also --output, --error):
-#SBATCH -o ./logs/%j.%x.out
-#SBATCH -e ./logs/%j.%x.err
+#SBATCH -o ./logs/%x.%j.out
+###SBATCH -e ./%j.%x.err
 
-#Initial working directory (also --chdir):
-#SBATCH --workdir=.
+#Initial working directory:
+#SBATCH --chdir=.
 
 #Notification and type
 #SBATCH --mail-type=BEGIN,END
-#SBATCH --mail-user=lukas.krenz@in.tum.de
+#SBATCH --mail-user=lukas.krenz@tum.de
 
 # Wall clock limit:
-#SBATCH --time=0:30:00
-##SBATCH --time=14:00:00
+##SBATCH --time=03:00:00
+#SBATCH --time=30:00:00
 #SBATCH --no-requeue
 
 #Setup of execution environment
 #SBATCH --export=ALL
-#SBATCH --account=pr45fi
+#SBATCH --account=pn68fi
+#constraints are optional
 #--constraint="scratch&work"
-#SBATCH --partition=test
+#SBATCH --partition=micro
 
-#SBATCH --nodes=16
+#Number of nodes and MPI tasks per node:
+#SBATCH --nodes=10
 #SBATCH --ntasks-per-node=1
-
-#SBATCH --ear=off
-
 module load slurm_setup
 
+#Run the program:
 export MP_SINGLE_THREAD=no
 unset KMP_AFFINITY
 export OMP_NUM_THREADS=94
@@ -47,6 +47,5 @@ export ASYNC_BUFFER_ALIGNMENT=8388608
 source /etc/profile.d/modules.sh
 
 echo $SLURM_NTASKS
-ulimit -Ss unlimited
-ulimit -c unlimited
-mpiexec -n ${SLURM_NTASKS} ./SeisSol parameters.par
+ulimit -Ss 2097152
+mpiexec -n $SLURM_NTASKS /dss/dsshome1/0E/ga24dib3/build/SeisSol-kilauea/SeisSol_Release_dskx_4_elastic parameters.par

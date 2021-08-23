@@ -1,75 +1,127 @@
 &equations
+!yaml file defining spatial dependance of material properties
 MaterialFileName = 'material.yaml'
+!off-fault plasticity parameter (ignored in Plasticity=0)
+Plasticity=0
+!Tv=0.05
+!Attenuation parameters (ignored if not compiled with attenuation)
+FreqCentral=2.5
+FreqRatio=100
 /
 
 &IniCondition
-cICType = 'SloshingLake'
+cICType = 'SloshingLake'                  ! Initial Condition
+!cICType = 'Zero'                  ! Initial Condition
+
+!The following parameters are only needed for the travelling wave IC:
+origin = 0 0 0.5             ! Origin of the wave 
+kVec = 6.283 0 0             ! Gives direction of wave propagation, the wavelength of the travelling wave is 2*pi / norm(kVec)
+ampField = 2 0 0 0 0 0 0 1 0 ! Amplification of the different wave modes
 /
 
 &Boundaries
-BC_fs = 1
-BC_dr = 0
-BC_of = 1
+BC_fs = 1                               ! enable free surface boundaries
+BC_dr = 0                               ! enable fault boundaries
+BC_of = 1                               ! enable absorbing boundaries
 /
 
 &DynamicRupture
-OutputPointType = 0        ! Type (0: no output, 1: take GP's 2: 4 points per surface triangle, 3: output at certain pickpoints, 4: fault surface output, 5=4+3)
+FL = 0                     ! Friction law  
+!0: none, 16:LSW, 103: RS with strong velocity weakening
+!yaml file defining spatial dependance of fault properties
+!ModelFileName = '33_fault0.yaml'
+
+!reference vector for defining strike and dip direction
+XRef = -0.1                  ! Reference point
+YRef = 0.0
+ZRef = -1.0
+refPointMethod = 1
+
+RF_output_on = 0            ! Rupture front ascii output
+magnitude_output_on =0      ! Moment magnitude output
+energy_rate_output_on =1    ! Moment rate output
+OutputPointType = 5         ! Type (0: no output, 3: ascii file, 4: paraview file, 5: 3+4)
+SlipRateOutputType=0        ! 0: (smoother) slip rate output evaluated from the difference between the velocity on both side of the fault
+                            ! 1: slip rate output evaluated from the fault tractions and the failure criterion (less smooth but usually more accurate where the rupture front is well developped)
 /
 
-
+!see: https://seissol.readthedocs.io/en/latest/fault-output.html
+! parameterize paraview file output
 &Elementwise
-printIntervalCriterion = 2 ! 1=iteration, 2=time
-printtimeinterval_sec = 1.0 ! Time interval at which output will be written
-OutputMask = 1 1 1 1 1 1 1 1 1 1 1  
+printIntervalCriterion = 2       ! 1=iteration, 2=time
+printtimeinterval_sec = 0.2      ! Time interval at which output will be written
+OutputMask = 1 1 1 1 1 1 1 1 1 1 1   ! turn on and off fault outputs
 refinement_strategy = 2
-refinement = 0
+refinement = 1
 /
 
+! parameterize ascii fault file outputs
 &Pickpoint
+printtimeinterval = 1       ! Index of printed info at timesteps
+OutputMask = 1 1 1 0        ! turn on and off fault outputs
+nOutpoints = 0 !28
+!PPFileName = 'tpv33_faultreceivers.dat'
 /
- 
+
 &SourceType
+!Type = 50   ! 50: point source described by an ASCII file
+!Type = 42   ! 42: finite source in netcdf format
+!FileName = 'source_norm.dat'
 /
 
 &SpongeLayer
 /
             
 &MeshNml
-MeshFile = 'mesh/KilaueaCrater.h5'
-meshgenerator = 'PUML'       ! Name of meshgenerator (format)
+!MeshFile = 'mesh/elastograv_v0.puml.h5'         ! Name of mesh file
+MeshFile = 'mesh/simple_larger.h5'
+meshgenerator = 'PUML'          ! Name of meshgenerator (Gambit3D-fast, Netcdf or PUML)
 /
 
 &Discretization
-CFL = 0.5                       ! CFL number (<=1.0)
-FixTimeStep = 5                 ! Manualy chosen minimum time
-ClusteredLTS = 2
-
+CFL = 0.3                            ! CFL number (<=1.0)
+FixTimeStep = 5                      ! Manualy chosen minimum time
+ClusteredLTS = 2                     ! 1 for Global time stepping, 2,3,5,... Local time stepping (advised value 2)
 /
 
 &Output
-OutputFile = 'output/output'
-iOutputMask = 1 1 1 1 1 1 1 1 1
-iOutputMaskMaterial = 1 1 1          ! Material output
-Format = 6                       ! Format (0=IDL, 1=TECPLOT, 2=IBM DX, 4=GiD, 6=hdf5, 10= no output))
-TimeInterval = 0.5                ! Index of printed info at time -  was 2
-printIntervalCriterion = 2
-xdmfWriterBackend = 'posix'
+!FaultOutputFlag = 1                  ! DR output (add this line only if DR is active)
+OutputFile = 'output/kilauea'
+Format = 10                         ! Format (10= no output, 6=hdf5 output)
+!             |stress     |vel  |plastic strain output (if any)
+iOutputMask = 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1
+printIntervalCriterion = 2           ! Criterion for index of printed info: 1=timesteps,2=time,3=timesteps+time
+TimeInterval = 2.                    ! Index of printed info at time
+refinement = 1
+OutputRegionBounds = -20e3 20e3 -10e3 10e3 -20e3 0e3 !(optional) array that describes the region 
+! of the wave field that should be written. Specified as 'xmin xmax ymin ymax zmin zmax'
 
-! Off-fault receivers
-pickDtType = 1
-pickdt = 1 
-nRecordPoints = 0 ! TODO
-RFileName = 'receivers.dat'
+! off-fault ascii receivers
+nRecordPoints = 2                    ! number of Record points which are read from file
+RFileName = 'receivers.dat'      ! Record Points in extra file
+pickdt = 0.005                       ! Pickpoint Sampling
+pickDtType = 1                       ! Pickpoint Type
+! (Optional) Synchronization point for receivers.
+!            If omitted, receivers are written at the end of the simulation.
+ReceiverOutputInterval = 0.2
 
-! Surface output
+! Free surface output
 SurfaceOutput = 1
 SurfaceOutputRefinement = 1
-SurfaceOutputInterval = 0.5
+SurfaceOutputInterval = 0.1
 
+!Checkpointing
+!checkPointFile = 'checkpoint/checkpoint'
+!checkPointBackend = 'mpio'           ! Checkpoint backend
+!checkPointInterval = 6
+
+xdmfWriterBackend = 'posix' ! (optional) The backend used in fault, wavefield,
+! and free-surface output. The HDF5 backend is only supported when SeisSol is compiled with
+! HDF5 support.
 /
-
+           
 &AbortCriteria
-EndTime = 50.0
+EndTime = 200.0
 /
 
 &Analysis
