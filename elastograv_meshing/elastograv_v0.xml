@@ -1,0 +1,56 @@
+<!--
+Regions:
+6 => Everything except crater
+8 => Crater
+-->
+
+<freeSurface>24, 26,27,38,30
+<!--  30 looks slightly weird? -->
+</freeSurface>
+<absorbing> 40, 34, 36, 32, 39 </absorbing>
+<boundaryCondition tag="2">37</boundaryCondition>
+
+<globalMSize value="10e3"/>
+
+<!-- Refine lava lake and especially lake surface -->
+<regionMSize value="20">8</regionMSize>
+<surfaceMSize value="2">37</surfaceMSize>
+
+<!-- Refine in free surface -->
+<MeshRefinementZoneCube value="40">
+<Center x="0" y="0" z="1100"/>
+<HalfWidth x="2000" y="0" z="0"/>
+<HalfHeight x="0" y="2000" z="0"/>
+<HalfDepth x="0" y="0" z="100"/>
+</MeshRefinementZoneCube>
+
+
+<!-- Refine in area next to lake -->
+<MeshRefinementZoneCube value="100">
+<Center x="0" y="0" z="1100"/>
+<HalfWidth x="500" y="0" z="0"/>
+<HalfHeight x="0" y="500" z="0"/>
+<HalfDepth x="0" y="0" z="500"/>
+</MeshRefinementZoneCube>
+
+<MeshRefinementZoneCube value="250">
+<Center x="0" y="0" z="1100"/>
+<HalfWidth x="2.5e3" y="0" z="0"/>
+<HalfHeight x="0" y="2.5e3" z="0"/>
+<HalfDepth x="0" y="0" z="2.5e3"/>
+</MeshRefinementZoneCube>
+
+<!-- Try to ensure good mesh quality-->
+<!--
+<gradation value="0.3"/>
+<area_AspectRatio value="6"/>
+<vol_AspectRatio value="12"/>
+-->
+<area_AspectRatio value="1"/>
+<vol_AspectRatio value="2"/>
+<gradation value="0.3"/>
+
+<!-- 
+    <SurfaceMeshing SmoothingLevel="1" SmoothingType="Gradient" DiscreteAngle="5.0" Snap="0"></SurfaceMeshing>
+<VolumeMeshing  SmoothingLevel="1" SmoothingType="Gradient" SetOptimisation="1"></VolumeMeshing>
+-->
